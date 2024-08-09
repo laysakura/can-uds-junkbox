@@ -99,3 +99,46 @@ class SecurityAccess:
     def send_key(self, key: bytes) -> bool:
         resp = send_recv(self.sock, bytes([0x27, self.level + 1]) + key)
         return is_positive_resp(resp)
+
+
+class RoutineControl:
+    """
+    0x31 Routine Control
+    """
+
+    def __init__(self, sock: isotp.socket, routine_id: int):
+        assert 0 <= routine_id <= 0xFFFF, "Invalid Routine ID"
+        self.sock = sock
+        self.routine_id = routine_id
+
+    def call_routine(self) -> Optional[bytes]:
+        """
+        Returns: Routine results if the routine is called successfully.
+        """
+        if self._start_routine():
+            res = self._stop_routine()
+            assert res, "Stop Routine failed"
+            return self._request_routine_results()
+        else:
+            return None
+
+    def _start_routine(self) -> bool:
+        """
+        Returns: True if the routine is started successfully.
+        """
+        resp = send_recv(self.sock, bytes([0x31, 0x01]) + p16(self.routine_id))
+        return is_positive_resp(resp)
+
+    def _stop_routine(self) -> bool:
+        """
+        Returns: True if the routine is stopped successfully.
+        """
+        resp = send_recv(self.sock, bytes([0x31, 0x02]) + p16(self.routine_id))
+        return is_positive_resp(resp)
+
+    def _request_routine_results(self) -> Optional[bytes]:
+        resp = send_recv(self.sock, bytes([0x31, 0x03]) + p16(self.routine_id))
+        if is_positive_resp(resp):
+            return resp[4:]
+        else:
+            return None
