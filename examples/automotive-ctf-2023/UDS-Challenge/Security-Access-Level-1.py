@@ -1,6 +1,11 @@
 import isotp
 from can_uds.comm import create_socket
-from can_uds.uds import SecurityAccess, read_memory, reset_ecu, start_diag_session
+from can_uds.uds import (
+    SecurityAccess,
+    read_memory_by_addr,
+    reset_ecu,
+    start_diag_session,
+)
 
 
 def start_level3(sock: isotp.socket):
@@ -27,7 +32,7 @@ def start_level1(sock: isotp.socket):
 
     # アドレス 0x1ac08 にキーが書かれている。
     key = b""
-    for _addr, data in read_memory(sock, 0x1AC08, 4):
+    for _addr, data in read_memory_by_addr(sock, 0x1AC08, 4):
         key += data
     assert len(key) == 4
     print(f"[level1] Key: {key.hex()}")

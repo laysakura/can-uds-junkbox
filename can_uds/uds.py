@@ -1,3 +1,4 @@
+from typing import Optional
 import isotp
 
 from can_uds.comm import is_positive_resp, send_recv
@@ -26,7 +27,22 @@ def reset_ecu(sock: isotp.socket):
     assert is_positive_resp(resp), "Reset failed"
 
 
-def read_memory(
+def read_memory_by_id(sock: isotp.socket, id_: int) -> Optional[bytes]:
+    """
+    0x22 Read Data By Identifier
+
+    Returns:
+        データが取得できる場合、そのデータ。
+        データが取得できない場合、None。
+    """
+    resp = send_recv(sock, bytes([0x22]) + p16(id_))
+    if is_positive_resp(resp):
+        return resp[3:]
+    else:
+        return None
+
+
+def read_memory_by_addr(
     sock: isotp.socket, start_addr: int, length: int
 ) -> list[tuple[int, bytes]]:
     """

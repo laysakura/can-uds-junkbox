@@ -1,7 +1,7 @@
 import argparse
 
 from can_uds.comm import create_socket
-from can_uds.uds import read_memory
+from can_uds.uds import read_memory_by_addr
 
 
 def _dump_data(data: bytes, addr: int, ignore_zero: bool):
@@ -26,7 +26,7 @@ def dump_memory(sock, start_addr: int, length: int, ignore_zero: bool):
     """
     Read Memory By Address (0x23) によりメモリダンプを行う関数
     """
-    ret = read_memory(sock, start_addr, length)
+    ret = read_memory_by_addr(sock, start_addr, length)
     for addr, data in ret:
         _dump_data(data, addr, ignore_zero)
 
