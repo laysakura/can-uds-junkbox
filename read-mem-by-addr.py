@@ -18,7 +18,7 @@ def _dump_data(data: bytes, addr: int, ignore_zero: bool):
 
         hex_data = " ".join(f"{b:02X}" for b in data_)
         ascii_data = "".join(chr(b) if 32 <= b <= 126 else "." for b in data_)
-        print(f"{addr + i:08X} {hex_data} {ascii_data}")
+        print(f"{addr + i:08X}  {hex_data}  {ascii_data}")
 
 
 def dump_memory(sock, start_addr: int, length: int, ignore_zero: bool):
