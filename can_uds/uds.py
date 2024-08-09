@@ -116,9 +116,9 @@ class RoutineControl:
         Returns: Routine results if the routine is called successfully.
         """
         if self._start_routine():
-            res = self._stop_routine()
-            assert res, "Stop Routine failed"
-            return self._request_routine_results()
+            res = self._request_routine_results()
+            assert self._stop_routine(), "Stop Routine failed"
+            return res
         else:
             return None
 

@@ -10,7 +10,7 @@ if __name__ == "__main__":
     reset_ecu(sock)
     time.sleep(5.0)
 
-    for routine_id in range(0, 0xFFFF):
+    for routine_id in range(0x1330, 0xFFFF):  # found an effective routine id @ 0x1337
         ctrl = RoutineControl(sock, routine_id)
         resp = ctrl.call_routine()
         if resp:
