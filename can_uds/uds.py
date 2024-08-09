@@ -111,13 +111,14 @@ class RoutineControl:
         self.sock = sock
         self.routine_id = routine_id
 
-    def call_routine(self) -> Optional[bytes]:
+    def call_routine(self, explicit_stop: bool = False) -> Optional[bytes]:
         """
         Returns: Routine results if the routine is called successfully.
         """
         if self._start_routine():
             res = self._request_routine_results()
-            assert self._stop_routine(), "Stop Routine failed"
+            if explicit_stop:
+                assert self._stop_routine(), "Stop Routine failed"
             return res
         else:
             return None
