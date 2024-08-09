@@ -1,4 +1,3 @@
-from functools import reduce
 import isotp
 from can_uds.comm import create_socket
 from can_uds.uds import SecurityAccess, read_memory, reset_ecu, start_diag_session
