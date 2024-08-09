@@ -9,7 +9,11 @@ from can_uds.uds import (
 
 def calc_key(seed: bytes, xor_by: int) -> bytes:
     key = int.from_bytes(seed, "big") & 0xFFFFFFFF
-    key ^= xor_by
+
+    # 4バイト、全て xor_by で埋める
+    xor = xor_by << 24 | xor_by << 16 | xor_by << 8 | xor_by
+
+    key ^= xor
     return key.to_bytes(4, "big")
 
 
