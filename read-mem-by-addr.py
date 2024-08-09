@@ -28,7 +28,7 @@ def dump_memory(sock, start_addr: int, length: int, ignore_zero: bool):
     # step バイトずつダンプする。
     addr, len_, step = start_addr, length, min(0x800, length)
     while step > 0:
-        resp = send_recv(sock, bytes([0x03, 0x24]) + p32(addr) + p16(step))
+        resp = send_recv(sock, bytes([0x23, 0x24]) + p32(addr) + p16(step))
         if is_positive_resp(resp):
             data = resp[1:]
 
