@@ -1,7 +1,7 @@
 import argparse
 
-from can_uds.comm import create_socket, is_positive_resp, send_recv
-from can_uds.util import p16, p32
+from can_uds.comm import create_socket
+from can_uds.uds import read_memory
 
 
 def _dump_data(data: bytes, addr: int, ignore_zero: bool):
@@ -26,20 +26,9 @@ def dump_memory(sock, start_addr: int, length: int, ignore_zero: bool):
     """
     Read Memory By Address (0x23) によりメモリダンプを行う関数
     """
-    # step バイトずつダンプする。
-    addr, len_, step = start_addr, length, min(0x800, length)
-    while step > 0:
-        resp = send_recv(sock, bytes([0x23, 0x24]) + p32(addr) + p16(step))
-        if is_positive_resp(resp):
-            data = resp[1:]
-
-            _dump_data(data, addr, ignore_zero)
-            addr += step
-            len_ -= step
-            step = min(step, len_)
-        else:
-            # step が大きいと拒否されることがあるので、半分ずつ小さくする。
-            step //= 2
+    ret = read_memory(sock, start_addr, length)
+    for addr, data in ret:
+        _dump_data(data, addr, ignore_zero)
 
 
 if __name__ == "__main__":

@@ -22,7 +22,11 @@ def start_level1(sock: isotp.socket):
     start_diag_session(sock, 0x02)
     sec_access = SecurityAccess(sock, 0x01)
     seed = sec_access.request_seed()
+    assert len(seed) == 4
     print(f"[level1] Seed: {seed.hex()}")
+
+    # アドレス 0x1ac08 にキーが書かれている。
+    key = 
 
 
 if __name__ == "__main__":

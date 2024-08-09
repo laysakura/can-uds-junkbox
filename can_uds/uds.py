@@ -1,6 +1,7 @@
 import isotp
 
 from can_uds.comm import is_positive_resp, send_recv
+from can_uds.util import p16, p32
 
 
 def start_diag_session(sock: isotp.socket, sub_func: int):
@@ -23,6 +24,36 @@ def reset_ecu(sock: isotp.socket):
     """
     resp = send_recv(sock, bytes([0x11, 0x02]))
     assert is_positive_resp(resp), "Reset failed"
+
+
+def read_memory(
+    sock: isotp.socket, start_addr: int, length: int
+) -> list[tuple[int, bytes]]:
+    """
+    0x23 Read Memory By Address
+
+    Returns: [(addr, data), ...]
+        addr: 開始アドレス
+        data: 開始アドレスから読み取ったデータチャンク
+    指定されたアドレス範囲からの読み取りが全て拒否された場合、返り値は [] となる。
+    """
+    assert length <= 0x800, "Length must be less than or equal to 0x800"
+
+    addr, len_, step = start_addr, length, length
+    ret = []
+    # step バイトずつ読む。
+    while step > 0:
+        resp = send_recv(sock, bytes([0x23, 0x24]) + p32(addr) + p16(step))
+        if is_positive_resp(resp):
+            ret.append((addr, resp[1:]))
+            addr += step
+            len_ -= step
+            step = min(step, len_)
+        else:
+            # step が大きいと拒否されることがあるので、半分ずつ小さくする。
+            step //= 2
+
+    return ret
 
 
 class SecurityAccess:
