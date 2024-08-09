@@ -2,6 +2,14 @@
 
 CANやらUDSやらOBD-IIやら使って諸々するツール群
 
+## インストール
+
+```bash
+python3 -m venv ~/venv
+. ~/venv/bin/activate
+pip install -r requirements.txt
+```
+
 ## read-mem-by-addr.py
 
 UDSの Read Memory By Address (0x23) サービスを使って、指定したアドレスから指定した長さのデータを読み出すツール。
@@ -10,7 +18,7 @@ UDSの Read Memory By Address (0x23) サービスを使って、指定したア�
 # 例: vcan0 に対し 7E0 のソースCAN IDを使って RMBA 命令。
 #     0xC3F85300 から 0x200 バイト読み出す。
 #     0x00 しかない行は出力対象外にする。
-python read-mem-by-addr.py vcan0 -a 7E0 -s 0xC3F85300 -l 0x200 -z
+python ./can_uds/read-mem-by-addr.py vcan0 -a 7E0 -s 0xC3F85300 -l 0x200 -z
 ```
 
 成功出力例:
