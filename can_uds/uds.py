@@ -19,11 +19,16 @@ def start_diag_session(sock: isotp.socket, sub_func: int):
     assert is_positive_resp(resp), "Start Diagnostic Session failed"
 
 
-def reset_ecu(sock: isotp.socket):
+def reset_ecu(sock: isotp.socket, sub_func: int = 0x01):
     """
     0x11 ECU Reset
+
+    sub_func:
+        0x01: Hard Reset
+        0x02: Key Off On Reset
+        0x03: Soft Reset
     """
-    resp = send_recv(sock, bytes([0x11, 0x02]))
+    resp = send_recv(sock, bytes([0x11, sub_func]))
     assert is_positive_resp(resp), "Reset failed"
 
 
