@@ -14,4 +14,3 @@ if __name__ == "__main__":
         resp = read_memory_by_id(sock, id_)
         if resp:
             print("Found data: ", resp)
-            break
