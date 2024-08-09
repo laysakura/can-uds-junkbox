@@ -1,6 +1,6 @@
 import argparse
 import isotp
-from can_uds.comm import create_socket, send_recv
+from can_uds.comm import create_socket, is_negative_resp, send_recv
 from can_uds.util import p16, p32
 
 
@@ -12,7 +12,12 @@ def _weird_read_memory_by_addr(
     # step バイトずつ読む。
     while step > 0:
         resp = send_recv(sock, bytes([0x23, 0x24]) + p32(addr) + p16(step))
-        # ポジティブレスポンスかネガティブレスポンスか知る術がないので、1バイト目からメモリの中身を返してきていると仮定する。
+
+        # ポジティブレスポンスかを知る術がないので、1バイト目からメモリの中身を返してきていると仮定する。
+        # ただし、lengthを長くしすぎると、 [NRC] requestOutOfRange のエラーを返すことは観測したので、そのチェックだけはする。
+        if is_negative_resp(resp, 0x23):
+            break
+
         ret.append((addr, resp[:]))
         addr += step
         len_ -= step
@@ -21,7 +26,11 @@ def _weird_read_memory_by_addr(
     return ret
 
 
-def dump_firmware(sock: isotp.socket, filename: str, length: int):
+def dump_firmware(sock: isotp.socket, filename: str, length: int) -> int:
+    """
+    Returns: ダンプしたデータの長さ
+    """
+
     # このECU、ReadMemoryByAddressに対するレスポンスが、ポジティブレスポンスとしてもネガティブレスポンスとしてもおかしい。
     # 1バイト目からメモリの中身を返してきている。
     #
@@ -33,9 +42,13 @@ def dump_firmware(sock: isotp.socket, filename: str, length: int):
 
     resp = _weird_read_memory_by_addr(sock, 0x00400000, length)
 
+    dump_len = 0
     with open(filename, "wb") as f:
         for _addr, data in resp:
             f.write(data)
+            dump_len += len(data)
+    
+    return dump_len
 
 
 if __name__ == "__main__":
@@ -53,6 +66,6 @@ if __name__ == "__main__":
     print("[NOTE] You have to be in Security Access Level1 to read memory.")
 
     sock = create_socket("vcan0", 0x7E0, 0x7E8)
-    dump_firmware(sock, "firmware.bin", args.length)
+    dump_len = dump_firmware(sock, "firmware.bin", args.length)
 
-    print(f"Successfully dumped firmware (firmware.bin ; {args.length} bytes).")
+    print(f"Successfully dumped firmware (firmware.bin ; {dump_len} bytes).")
