@@ -1,16 +1,20 @@
 # can-uds-junkbox
 
-CANやらUDSやらOBD-IIやら使って諸々するツール群
+CANやらUDSやらOBD-IIやら使って諸々するライブラリ ( `can_uds` ) とツール群。
 
-## インストール
+`examples/` 以下はCTFとかの解答。
+
+## ライブラリインストール
 
 ```bash
 python3 -m venv ~/venv
 . ~/venv/bin/activate
-pip install -r requirements.txt
+pip install -e .
 ```
 
-## read-mem-by-addr.py
+## ツール群
+
+### read-mem-by-addr.py
 
 UDSの Read Memory By Address (0x23) サービスを使って、指定したアドレスから指定した長さのデータを読み出すツール。
 
