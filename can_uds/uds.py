@@ -42,10 +42,6 @@ class SecurityAccess:
         self.level = level
 
     def request_seed(self) -> bytes:
-        """
-        This class is unaware of the seed length.
-        Returns: Seed (6 bytes, 0-padded)
-        """
         resp = send_recv(self.sock, bytes([0x27, self.level]))
         assert is_positive_resp(resp), "Request Seed failed"
         return resp[2:]
