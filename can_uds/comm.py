@@ -2,7 +2,7 @@ import isotp
 
 
 def create_socket(interface: str, txid: int, rxid: int) -> isotp.socket:
-    s = isotp.socket(0.2)
+    s = isotp.socket(1.0)
     s.bind(interface, isotp.Address(txid=txid, rxid=rxid))
     return s
 
