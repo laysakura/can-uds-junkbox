@@ -1,6 +1,7 @@
 import argparse
 
-from can_uds.util import create_socket, is_positive_resp, p16, p32, send_recv
+from can_uds.comm import create_socket, is_positive_resp, send_recv
+from can_uds.util import p16, p32
 
 
 def _dump_data(data: bytes, addr: int, ignore_zero: bool):
