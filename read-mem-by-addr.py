@@ -23,7 +23,7 @@ def _dump_data(data: bytes, addr: int, ignore_zero: bool):
 
 def dump_memory(sock, start_addr: int, length: int, ignore_zero: bool):
     """
-    メモリダンプを行う関数
+    Read Memory By Address (0x23) によりメモリダンプを行う関数
     """
     # step バイトずつダンプする。
     addr, len_, step = start_addr, length, min(0x800, length)
