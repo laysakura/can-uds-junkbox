@@ -37,9 +37,7 @@ def read_memory(
         data: 開始アドレスから読み取ったデータチャンク
     指定されたアドレス範囲からの読み取りが全て拒否された場合、返り値は [] となる。
     """
-    assert length <= 0x800, "Length must be less than or equal to 0x800"
-
-    addr, len_, step = start_addr, length, length
+    addr, len_, step = start_addr, length, min(length, 0x800)
     ret = []
     # step バイトずつ読む。
     while step > 0:
