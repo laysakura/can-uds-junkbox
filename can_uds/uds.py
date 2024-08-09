@@ -16,7 +16,7 @@ def start_diag_session(sock: isotp.socket, sub_func: int):
         0x04: Safety System Diagnostic Session
     """
     resp = send_recv(sock, bytes([0x10, sub_func]))
-    assert is_positive_resp(resp), "Start Diagnostic Session failed"
+    assert is_positive_resp(resp, 0x10), "Start Diagnostic Session failed"
 
 
 def reset_ecu(sock: isotp.socket, sub_func: int = 0x01):
@@ -29,7 +29,7 @@ def reset_ecu(sock: isotp.socket, sub_func: int = 0x01):
         0x03: Soft Reset
     """
     resp = send_recv(sock, bytes([0x11, sub_func]))
-    assert is_positive_resp(resp), "Reset failed"
+    assert is_positive_resp(resp, 0x11), "Reset failed"
 
 
 def read_memory_by_id(sock: isotp.socket, id_: int) -> Optional[bytes]:
@@ -41,7 +41,7 @@ def read_memory_by_id(sock: isotp.socket, id_: int) -> Optional[bytes]:
         データが取得できない場合、None。
     """
     resp = send_recv(sock, bytes([0x22]) + p16(id_))
-    if is_positive_resp(resp):
+    if is_positive_resp(resp, 0x22):
         return resp[3:]
     else:
         return None
@@ -63,7 +63,7 @@ def read_memory_by_addr(
     # step バイトずつ読む。
     while step > 0:
         resp = send_recv(sock, bytes([0x23, 0x24]) + p32(addr) + p16(step))
-        if is_positive_resp(resp):
+        if is_positive_resp(resp, 0x23):
             ret.append((addr, resp[1:]))
             addr += step
             len_ -= step
@@ -93,12 +93,12 @@ class SecurityAccess:
 
     def request_seed(self) -> bytes:
         resp = send_recv(self.sock, bytes([0x27, self.level]))
-        assert is_positive_resp(resp), "Request Seed failed"
+        assert is_positive_resp(resp, 0x27), "Request Seed failed"
         return resp[2:]
 
     def send_key(self, key: bytes) -> bool:
         resp = send_recv(self.sock, bytes([0x27, self.level + 1]) + key)
-        return is_positive_resp(resp)
+        return is_positive_resp(resp, 0x27)
 
 
 class RoutineControl:
@@ -128,18 +128,18 @@ class RoutineControl:
         Returns: True if the routine is started successfully.
         """
         resp = send_recv(self.sock, bytes([0x31, 0x01]) + p16(self.routine_id))
-        return is_positive_resp(resp)
+        return is_positive_resp(resp, 0x31)
 
     def _stop_routine(self) -> bool:
         """
         Returns: True if the routine is stopped successfully.
         """
         resp = send_recv(self.sock, bytes([0x31, 0x02]) + p16(self.routine_id))
-        return is_positive_resp(resp)
+        return is_positive_resp(resp, 0x31)
 
     def _request_routine_results(self) -> Optional[bytes]:
         resp = send_recv(self.sock, bytes([0x31, 0x03]) + p16(self.routine_id))
-        if is_positive_resp(resp):
+        if is_positive_resp(resp, 0x31):
             return resp[4:]
         else:
             return None
