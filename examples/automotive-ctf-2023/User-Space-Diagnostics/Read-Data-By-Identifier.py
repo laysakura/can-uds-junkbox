@@ -6,7 +6,7 @@ from can_uds.uds import (
 
 
 if __name__ == "__main__":
-    sock = create_socket("vcan0", 0x7E0, 0x7E8)
+    sock = create_socket("vcan0", 0x7E0, 0x7E8, timeout=2.0)
     reset_ecu(sock)
 
     for id_ in range(0, 0xFFFF):

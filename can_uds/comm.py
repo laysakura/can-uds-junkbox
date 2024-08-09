@@ -1,8 +1,8 @@
 import isotp
 
 
-def create_socket(interface: str, txid: int, rxid: int) -> isotp.socket:
-    s = isotp.socket(1.0)
+def create_socket(interface: str, txid: int, rxid: int, timeout: float = 1.0) -> isotp.socket:
+    s = isotp.socket(timeout=timeout)
     s.bind(interface, isotp.Address(txid=txid, rxid=rxid))
     return s
 
