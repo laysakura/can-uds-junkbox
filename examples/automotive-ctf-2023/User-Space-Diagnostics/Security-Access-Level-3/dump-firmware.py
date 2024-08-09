@@ -50,7 +50,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    print("You have to be in Security Access Level1 to read memory.")
+    print("[NOTE] You have to be in Security Access Level1 to read memory.")
 
     sock = create_socket("vcan0", 0x7E0, 0x7E8)
     dump_firmware(sock, "firmware.bin", args.length)
+
+    print(f"Successfully dumped firmware (firmware.bin ; {args.length} bytes).")
