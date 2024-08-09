@@ -18,7 +18,7 @@ UDSの Read Memory By Address (0x23) サービスを使って、指定したア�
 # 例: vcan0 に対し 7E0 のソースCAN IDを使って RMBA 命令。
 #     0xC3F85300 から 0x200 バイト読み出す。
 #     0x00 しかない行は出力対象外にする。
-python ./can_uds/read-mem-by-addr.py vcan0 -a 7E0 -s 0xC3F85300 -l 0x200 -z
+python read-mem-by-addr.py vcan0 -a 7E0 -s 0xC3F85300 -l 0x200 -z
 ```
 
 成功出力例:

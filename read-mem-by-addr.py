@@ -30,7 +30,7 @@ def dump_memory(sock, start_addr: int, length: int, ignore_zero: bool):
     while step > 0:
         resp = send_recv(sock, bytes([0x03, 0x24]) + p32(addr) + p16(step))
         if is_positive_resp(resp):
-            data = resp.data[1:]
+            data = resp[1:]
 
             _dump_data(data, addr, ignore_zero)
             addr += step

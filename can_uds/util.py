@@ -19,10 +19,10 @@ def create_socket(interface: str, txid: int, rxid: int) -> isotp.socket:
     return s
 
 
-def send_recv(sock, req: bytes) -> isotp.Message:
+def send_recv(sock: isotp.socket, req: bytes) -> bytes:
     sock.send(req)
     return sock.recv()
 
 
-def is_positive_resp(resp: isotp.Message) -> bool:
-    return resp and resp.data[0] != 0x7F
+def is_positive_resp(resp: bytes) -> bool:
+    return len(resp) > 0 and resp[0] != 0x7F
