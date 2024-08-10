@@ -1,5 +1,9 @@
+# You need to:
+#   pip install randcrack
+
 import time
 import isotp
+from randcrack import RandCrack
 from can_uds.comm import create_socket
 from can_uds.uds import (
     SecurityAccess,
@@ -31,47 +35,31 @@ def solve_level1(sock: isotp.socket, xor_by: int):
         return True
 
 
-def guess_key_level5(sock: isotp.socket) -> bytes:
-    # (1) ECU reset
-    reset_ecu(sock)
-    time.sleep(3.0)
-
-    # (2) Security Access Level 5 を2回開始。2回目のseedを取得。
+def solve_level5(sock: isotp.socket):
+    """
+    メルセンヌ・ツイスタをcrackする。
+    624個の乱数列から、次の乱数が予想できる。
+    """
+    rc = RandCrack()
     sec_access = SecurityAccess(sock, 0x05)
-    seed1 = sec_access.request_seed()
-    print(f"[guess_key_level5] Seed1: {seed1.hex()}")
-    seed2 = sec_access.request_seed()
-    print(f"[guess_key_level5] Seed2: {seed2.hex()}")
 
-    # (3) seed2について「上位から i バイト目 (i = 0~3) を +i したもの」を計算し、キーとする
-    key = b"".join((seed2[i] + i).to_bytes(1, "big") for i in range(4))
+    for i in range(624):
+        seed = sec_access.request_seed()
+        rc.submit(seed)
+        print(f"[level5] seed{i}: {seed.hex()}")
 
-    print(f"[guess_key_level5] Guessed Key: {key.hex()}")
-    return key
+    key = rc.predict_getrandbits(32)
+    print(f"[level5] predicted key: {key.hex()}")
 
-
-def break_level5(key: bytes):
-    # (1) ECU reset
-    reset_ecu(sock)
-    time.sleep(3.0)
-
-    # (2) Security Access Level 5 を2回開始。
-    sec_access = SecurityAccess(sock, 0x05)
-    seed1 = sec_access.request_seed()
-    print(f"[break_level5] Seed1: {seed1.hex()}")
-    seed2 = sec_access.request_seed()
-    print(f"[break_level5] Seed2: {seed2.hex()}")
-
-    # (3) キーを送信
     if sec_access.send_key(key):
-        print("[break_level5] Security Access Level5 succeeded")
+        print("[level5] Security Access Level5 succeeded")
     else:
-        print("[break_level5] Security Access Level5 failed")
+        print("[level5] Security Access Level5 failed")
 
 
 if __name__ == "__main__":
     sock = create_socket("vcan0", 0x7E0, 0x7E8)
+    reset_ecu(sock)
+    time.sleep(3.0)
 
-    key = guess_key_level5(sock)
-
-    break_level5(key)
+    solve_level5(sock)
