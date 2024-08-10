@@ -45,10 +45,11 @@ def solve_level5(sock: isotp.socket):
 
     for i in range(624):
         seed = sec_access.request_seed()
-        rc.submit(seed)
         print(f"[level5] seed{i}: {seed.hex()}")
+        rc.submit(int.from_bytes(seed, "big"))
 
-    key = rc.predict_getrandbits(32)
+    key_ = rc.predict_getrandbits(32)
+    key = key_.to_bytes(4, "big")
     print(f"[level5] predicted key: {key.hex()}")
 
     if sec_access.send_key(key):
