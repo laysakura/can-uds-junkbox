@@ -189,14 +189,17 @@ class UploaderToEcu:
     Combination of Request Download, Transfer Data, and Request Transfer Exit.
     """
 
-    def __init__(self, sock: isotp.socket, addr: int, length: int, explicit_exit: bool = True):
+    def __init__(self, sock: isotp.socket, addr: int, data: bytes, explicit_exit: bool = True):
         self.sock = sock
         self.addr = addr
-        self.length = length
-        self.block_len = request_download(sock, addr, length)
+        self.length = len(data)
+        self.data = data
         self.explicit_exit = explicit_exit
 
-    def upload(self, data: bytes):
-        transfer_data(self.sock, data, self.block_len)
+        max_block_len = request_download(sock, addr, self.length)
+        self.block_len = min(max_block_len, 0x800)
+
+    def upload(self):
+        transfer_data(self.sock, self.data, self.block_len)
         if self.explicit_exit:
             request_transfer_exit(self.sock)

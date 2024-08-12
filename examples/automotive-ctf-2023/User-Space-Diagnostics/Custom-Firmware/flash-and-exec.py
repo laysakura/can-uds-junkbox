@@ -29,11 +29,11 @@ def flash_firmware(sock: isotp.socket, firmware: bytes):
     uploader = UploaderToEcu(
         sock,
         addr,
-        len(firmware_with_checksum),
+        firmware_with_checksum,
         # 今回のシミュレーターでは RequestTransferExit がサポートされていない
         explicit_exit=False,
     )
-    uploader.upload(firmware_with_checksum)
+    uploader.upload()
 
 
 def exec_firmware(sock: isotp.socket):
