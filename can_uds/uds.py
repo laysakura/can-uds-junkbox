@@ -168,8 +168,8 @@ def transfer_data(sock: isotp.socket, data: bytes, block_len: int):
     """
     0x36 Transfer Data
     """
-    for i in range(0, len(data), block_len):
-        sequence_num = (i + 1) & 0xFF
+    for seq, i in enumerate(range(0, len(data), block_len), 1):
+        sequence_num = seq & 0xFF
         resp = send_recv(
             sock, bytes([0x36]) + p8(sequence_num) + data[i : i + block_len]
         )
