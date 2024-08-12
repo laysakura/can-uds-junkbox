@@ -37,9 +37,10 @@ def flash_firmware(sock: isotp.socket, firmware: bytes):
 
 def exec_firmware(sock: isotp.socket):
     ctrl = RoutineControl(
-        sock, 0x5A5A
+        sock, 0xA5A5
     )  # ファームウェアを実際に `/tmp/firmware` に書いて実行してもらうためのルーチンID
-    ctrl.call_routine()
+    resp = ctrl.call_routine()
+    assert resp, "Failed to call a5a5 routine"
 
 
 if __name__ == "__main__":
