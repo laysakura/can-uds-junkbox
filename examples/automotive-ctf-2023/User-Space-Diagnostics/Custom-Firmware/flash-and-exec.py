@@ -24,6 +24,7 @@ def flash_firmware(sock: isotp.socket, firmware: bytes):
     # チェックサムが必要なので計算して末尾に付け加える
     md5_checksum = hashlib.md5(firmware).digest()
     firmware_with_checksum = firmware + md5_checksum
+    print(f"Checksum: {md5_checksum.hex()}")
 
     uploader = UploaderToEcu(
         sock,
