@@ -1,5 +1,5 @@
 // compile:
-//   gcc -static -Os firmware.c -o firmware
+//   gcc -static -Os firmware.c -o firmware.bin
 
 #include <stdio.h>
 #include <stdlib.h>
