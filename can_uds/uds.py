@@ -2,7 +2,7 @@ from typing import Optional
 import isotp
 
 from can_uds.comm import is_positive_resp, send_recv
-from can_uds.util import p16, p32
+from can_uds.util import p16, p32, p8
 
 
 def start_diag_session(sock: isotp.socket, sub_func: int):
@@ -158,7 +158,7 @@ def request_download(sock: isotp.socket, addr: int, length: int) -> int:
         sock, bytes([0x34, data_format, addr_length_format]) + p32(addr) + p32(length)
     )
     assert is_positive_resp(resp, 0x34)
-    
+
     max_number_of_block_length = resp[2:]
     assert len(max_number_of_block_length) <= 4
     return int.from_bytes(max_number_of_block_length, "big")
@@ -169,7 +169,10 @@ def transfer_data(sock: isotp.socket, data: bytes, block_len: int):
     0x36 Transfer Data
     """
     for i in range(0, len(data), block_len):
-        resp = send_recv(sock, bytes([0x36]) + data[i : i + block_len])
+        sequence_num = (i + 1) & 0xFF
+        resp = send_recv(
+            sock, bytes([0x36]) + p8(sequence_num) + data[i : i + block_len]
+        )
         assert is_positive_resp(resp, 0x36)
 
 

@@ -41,7 +41,7 @@ if __name__ == "__main__":
     print(f"[NOTE] You need to place a firmware to flash in: {firm_path}.")
     firmware = read_firmware(firm_path)
 
-    sock = create_socket("vcan0", 0x7E0, 0x7E8)
+    sock = create_socket("vcan0", 0x7E0, 0x7E8, timeout=5.0)
 
     print("Flashing firmware...")
     flash_firmware(sock, firmware)

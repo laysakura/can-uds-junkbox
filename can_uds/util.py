@@ -1,3 +1,7 @@
+def p8(x: int) -> bytes:
+    return x.to_bytes(1, "big")
+
+
 def p16(x: int) -> bytes:
     return x.to_bytes(2, "big")
 
