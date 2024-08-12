@@ -143,3 +143,55 @@ class RoutineControl:
             return resp[4:]
         else:
             return None
+
+
+def request_download(sock: isotp.socket, addr: int, length: int) -> int:
+    """
+    0x34 Request Download
+
+    Returns: maxNumberOfBlockLength
+      (TransferData で1回に送信できる最大データ長)
+    """
+    data_format = 0x00  # no copmression, no encryption
+    addr_length_format = 0x44  # 32-bit address and length
+    resp = send_recv(
+        sock, bytes([0x34, data_format, addr_length_format]) + p32(addr) + p32(length)
+    )
+    assert is_positive_resp(resp, 0x34)
+    
+    max_number_of_block_length = resp[2:]
+    assert len(max_number_of_block_length) <= 4
+    return int.from_bytes(max_number_of_block_length, "big")
+
+
+def transfer_data(sock: isotp.socket, data: bytes, block_len: int):
+    """
+    0x36 Transfer Data
+    """
+    for i in range(0, len(data), block_len):
+        resp = send_recv(sock, bytes([0x36]) + data[i : i + block_len])
+        assert is_positive_resp(resp, 0x36)
+
+
+def request_transfer_exit(sock: isotp.socket):
+    """
+    0x37 Request Transfer Exit
+    """
+    resp = send_recv(sock, bytes([0x37]))
+    assert is_positive_resp(resp, 0x37)
+
+
+class UploaderToEcu:
+    """
+    Combination of Request Download, Transfer Data, and Request Transfer Exit.
+    """
+
+    def __init__(self, sock: isotp.socket, addr: int, length: int):
+        self.sock = sock
+        self.addr = addr
+        self.length = length
+        self.block_len = request_download(sock, addr, length)
+
+    def upload(self, data: bytes):
+        transfer_data(self.sock, data, self.block_len)
+        request_transfer_exit(self.sock)
