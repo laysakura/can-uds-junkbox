@@ -25,12 +25,20 @@ def flash_firmware(sock: isotp.socket, firmware: bytes):
     md5_checksum = hashlib.md5(firmware).digest()
     firmware_with_checksum = firmware + md5_checksum
 
-    uploader = UploaderToEcu(sock, addr, len(firmware_with_checksum))
+    uploader = UploaderToEcu(
+        sock,
+        addr,
+        len(firmware_with_checksum),
+        # 今回のシミュレーターでは RequestTransferExit がサポートされていない
+        explicit_exit=False,
+    )
     uploader.upload(firmware_with_checksum)
 
 
 def exec_firmware(sock: isotp.socket):
-    ctrl = RoutineControl(sock, 0x5A5A)  # ファームウェアを実際に `/tmp/firmware` に書いて実行してもらうためのルーチンID
+    ctrl = RoutineControl(
+        sock, 0x5A5A
+    )  # ファームウェアを実際に `/tmp/firmware` に書いて実行してもらうためのルーチンID
     ctrl.call_routine()
 
 
