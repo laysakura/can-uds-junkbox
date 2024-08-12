@@ -45,7 +45,7 @@ def exec_firmware(sock: isotp.socket):
 
 
 if __name__ == "__main__":
-    print("[NOTE] You need to be in Security Access Level 3.")
+    print("[NOTE] You need to be in Security Access Level 5.")
 
     firm_path = os.path.join(mydir(), "firmware.bin")
     print(f"[NOTE] You need to place a firmware to flash in: {firm_path}.")
