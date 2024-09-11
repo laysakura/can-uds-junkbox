@@ -65,5 +65,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    sock = create_socket(args.interface, args.arbitration_id, args.arbitration_id + 8)
+    sock = create_socket(args.interface, args.arbitration_id, args.arbitration_id + 8, timeout=10.0)
     dump_memory(sock, args.start_address, args.length, args.ignore_zero)
